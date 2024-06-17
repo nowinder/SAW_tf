@@ -1,6 +1,7 @@
 # %load net_2paras
 # code by Zhengcaizhi
 import os
+import random
 
 import keras.optimizers as optimizer
 import numpy as np
@@ -137,19 +138,19 @@ def conv():  # model3v1
 
 lr_schedule = tf.keras.optimizers.schedules.InverseTimeDecay(
     0.001,
-    decay_steps=1000,
+    decay_steps=4000,
     #   10的decay训练有些过于慢了
     decay_rate=1,
     staircase=False)
 
 model = IANN()
 freq = np.linspace(5 * 1e8, 1.5 * 1e9, 501)
-data_path = 'G:/Zheng_caizhi/Pycharmprojects/SAW_tf/datas/input/6w.npy'
+data_path = 'G:/Zheng_caizhi/Pycharmprojects/SAW_tf/datas/input/vb.npy'
 data = np.load(data_path)
 # data2_path = 'D:\\data\\7p/input2w/2w_0.5.npy'
 # data2 = np.load(data2_path)
 # data = np.concatenate((data1, data2))
-label_path1 = 'G:/Zheng_caizhi/Pycharmprojects/SAW_tf/datas/out/MP60.csv'
+label_path1 = 'G:/Zheng_caizhi/Pycharmprojects/SAW_tf/datas/out/vb.005.csv'
 # label_path2 = 'D:\\data\\7p/out/MP60_0.5.csv'
 label = np.genfromtxt(label_path1, delimiter=',')
 # label2 = np.genfromtxt(label_path2, delimiter=',')
@@ -164,7 +165,9 @@ BATCHSIZE = 128
 dataset = data_set
 valiset = dataset.take(128).batch(BATCHSIZE).cache().prefetch(tf.data.AUTOTUNE)
 trainset = dataset.skip(128)
-trainset = trainset.cache().shuffle(trainset.cardinality(), seed=1919810, reshuffle_each_iteration=True).repeat().batch(
+se =random.randint(1,int(10e5))
+print('seed=%d' % se)
+trainset = trainset.cache().shuffle(trainset.cardinality(), seed=se, reshuffle_each_iteration=True).repeat().batch(
     BATCHSIZE).prefetch(tf.data.AUTOTUNE)
 
 checkpoint_filepath = os.path.join(os.getcwd(), 'weights', 'model-ep{epoch:03d}-valoss{val_loss:.3f}')
@@ -177,10 +180,10 @@ log_dir = os.path.join(os.getcwd(), 'logs')
 model_checkpoint = ModelCheckpoint(filepath=checkpoint_filepath, monitor='val_loss', verbose=1, save_weights_only=True,
                                    save_best_only=True, initial_value_threshold=0.025)
 early_stop = EarlyStopping(monitor='val_loss', patience=200)
-Board = tf.keras.callbacks.TensorBoard(log_dir=log_dir, histogram_freq=1, profile_batch='10, 15')
+Board = tf.keras.callbacks.TensorBoard(log_dir=log_dir, histogram_freq=1, profile_batch='10, 20')
 # opt = optimizer.Adam(learning_rate=lr_schedule)
 
-model.compile(optimizer=optimizer.Adam(lr_schedule), loss='mse', metrics='accuracy')
+model.compile(optimizer=optimizer.Adam(learning_rate=lr_schedule), loss='mse', metrics='accuracy')
 # model.reset_states()
 # model.reset_metrics()
 # model.load_weights(checkpoint_filepath)

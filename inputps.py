@@ -89,7 +89,7 @@ def YtoZS(Y_COM, freq):
 
 
 results = []
-origin_paras = np.genfromtxt('G:/Zheng_caizhi/Pycharmprojects/SAW_tf/datas/out/MP60.csv', delimiter=',')
+origin_paras = np.genfromtxt('G:/Zheng_caizhi/Pycharmprojects/SAW_tf/datas/out/vb.005.csv', delimiter=',')
 for i in range(0,len(origin_paras)):
     # x = np.array([eta,e,alpha,c,k2,npiezo_1,vb,m_ratio])
     # x = np.append(origin_paras[i], 0.6)
@@ -114,7 +114,7 @@ result = (result - mu) / sigma
 # else:
 #     result = result - mu
 
-file_path = 'G:/Zheng_caizhi/Pycharmprojects/SAW_tf/datas/input/6w.npy'
+file_path = 'G:/Zheng_caizhi/Pycharmprojects/SAW_tf/datas/input/vb.npy'
 with open(file_path, 'wb') as f:
     np.save(f, result)
 file_path1 = file_path + 'musi.csv'

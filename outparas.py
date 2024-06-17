@@ -27,7 +27,8 @@ for i in range(3):
     alpha_num = [i for i in np.linspace(alpha * (1-ratio[i]), alpha * (1+ratio[i]), 10000)]
     c_num = [i for i in np.linspace(c * max(0.01, 1-5*ratio[i]), c * (1+5*ratio[i]), 10000)]
     k2_num = [i for i in np.linspace(k2 * 0.01, k2 * (1+20*ratio[i]), 10000)]
-    vb_num = [i for i in np.linspace(vb * (1-ratio[i]), vb * (1+ratio[i]), 10000)]
+    vb_num = [i for i in np.linspace(vb * (1-0.005), vb * (1+0.005), 10000)]
+    # vb_num = [i for i in np.linspace(vb * (1-ratio[i]), vb * (1+ratio[i]), 10000)]
 
     for j in range(0, 20000):
         random.seed()
@@ -42,7 +43,7 @@ for i in range(3):
 
 x_max = x.max(axis=0).reshape((1, 7))
 x_min = x.min(axis=0).reshape((1, 7))
-file = 'G:/Zheng_caizhi/Pycharmprojects/SAW_tf/datas/out/' + 'MP60' + '.csv'
+file = 'G:/Zheng_caizhi/Pycharmprojects/SAW_tf/datas/out/' + 'vb.005' + '.csv'
 with open(file, 'w', newline='') as f:
     np.savetxt(f, x, delimiter=',', newline='\n')
 file = file + 'maxmin.csv'
