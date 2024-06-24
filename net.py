@@ -143,82 +143,91 @@ lr_schedule = tf.keras.optimizers.schedules.InverseTimeDecay(
     decay_rate=1,
     staircase=False)
 
-model = IANN()
-freq = np.linspace(5 * 1e8, 1.5 * 1e9, 501)
-data_path = 'G:/Zheng_caizhi/Pycharmprojects/SAW_tf/datas/input/vb.npy'
-data = np.load(data_path)
-# data2_path = 'D:\\data\\7p/input2w/2w_0.5.npy'
-# data2 = np.load(data2_path)
-# data = np.concatenate((data1, data2))
-label_path1 = 'G:/Zheng_caizhi/Pycharmprojects/SAW_tf/datas/out/vb.005.csv'
-# label_path2 = 'D:\\data\\7p/out/MP60_0.5.csv'
-label = np.genfromtxt(label_path1, delimiter=',')
-# label2 = np.genfromtxt(label_path2, delimiter=',')
-# label = np.concatenate((label1, label2))
-label_mm_path = label_path1 + 'maxmin.csv'
-label_mm = np.genfromtxt(label_mm_path, delimiter=',')
-label_max = label_mm[0]
-label_min = label_mm[1]
-label = (label - label_min) / (label_max - label_min)
-data_set = tf.data.Dataset.zip((tf.data.Dataset.from_tensor_slices(data), tf.data.Dataset.from_tensor_slices(label)))
-BATCHSIZE = 128
-dataset = data_set
-valiset = dataset.take(128).batch(BATCHSIZE).cache().prefetch(tf.data.AUTOTUNE)
-trainset = dataset.skip(128)
-se =random.randint(1,int(10e5))
-print('seed=%d' % se)
-trainset = trainset.cache().shuffle(trainset.cardinality(), seed=se, reshuffle_each_iteration=True).repeat().batch(
-    BATCHSIZE).prefetch(tf.data.AUTOTUNE)
 
-checkpoint_filepath = os.path.join(os.getcwd(), 'weights', 'model-ep{epoch:03d}-valoss{val_loss:.3f}')
-# shutil.rmtree(checkpoint_filepath)
-# checkpoint_filepath = checkpoint_filepath + '\\' +str(Pitch)
-# log_dir="c:\\Users\\caizhi.zheng\\code\\For AI\\logs2v5\\"+str(MP)+'-'+str(Pitch)
-log_dir = os.path.join(os.getcwd(), 'logs')
-# shutil.rmtree(log_dir,ignore_errors=True)
+if __name__ == '__main__':
+    model = IANN()
+    freq = np.linspace(5 * 1e8, 1.5 * 1e9, 501)
+    data_path = 'G:/Zheng_caizhi/Pycharmprojects/SAW_tf/datas/input/6pk_2.npy'
+    data = np.load(data_path)
+    vali_path = 'G:/Zheng_caizhi/Pycharmprojects/SAW_tf/datas/input/vali600n.npy'
+    vali = np.load(vali_path)
+    # data2_path = 'D:\\data\\7p/input2w/2w_0.5.npy'
+    # data2 = np.load(data2_path)
+    # data = np.concatenate((data1, data2))
+    label_path1 = 'G:/Zheng_caizhi/Pycharmprojects/SAW_tf/datas/out/6p1k_2.csv'
+    # label_path2 = 'D:\\data\\7p/out/MP60_0.5.csv'
+    label = np.genfromtxt(label_path1, delimiter=',')
+    valilabel_path1 = 'G:/Zheng_caizhi/Pycharmprojects/SAW_tf/datas/out/vali600.csv'
+    valilabel = np.genfromtxt(valilabel_path1, delimiter=',')
+    # label2 = np.genfromtxt(label_path2, delimiter=',')
+    # label = np.concatenate((label1, label2))
+    label_mm_path = label_path1 + 'maxmin.csv'
+    label_mm = np.genfromtxt(label_mm_path, delimiter=',')
+    label_max = label_mm[0]
+    label_min = label_mm[1]
+    label = (label - label_min) / (label_max - label_min)
+    valilabel = (valilabel - label_min) / (label_max - label_min)
+    data_set = tf.data.Dataset.zip((tf.data.Dataset.from_tensor_slices(data), tf.data.Dataset.from_tensor_slices(label)))
+    vali_set = tf.data.Dataset.zip((tf.data.Dataset.from_tensor_slices(vali), tf.data.Dataset.from_tensor_slices(valilabel)))
+    BATCHSIZE = 128
+    # dataset = data_set
+    # valiset = dataset.take(128).batch(BATCHSIZE).cache().prefetch(tf.data.AUTOTUNE)
+    # trainset = dataset.skip(128)
+    se =random.randint(1,int(10e5))
+    print('seed=%d' % se)
+    trainset = data_set.cache().shuffle(data_set.cardinality(), seed=se, reshuffle_each_iteration=True).repeat().batch(
+        BATCHSIZE).prefetch(tf.data.AUTOTUNE)
+    valiset = vali_set.batch(BATCHSIZE).cache().prefetch(tf.data.AUTOTUNE)
 
-model_checkpoint = ModelCheckpoint(filepath=checkpoint_filepath, monitor='val_loss', verbose=1, save_weights_only=True,
-                                   save_best_only=True, initial_value_threshold=0.025)
-early_stop = EarlyStopping(monitor='val_loss', patience=200)
-Board = tf.keras.callbacks.TensorBoard(log_dir=log_dir, histogram_freq=1, profile_batch='10, 20')
-# opt = optimizer.Adam(learning_rate=lr_schedule)
+    checkpoint_filepath = os.path.join(os.getcwd(), 'weights', 'model-ep{epoch:03d}-valoss{val_loss:.3f}')
+    # shutil.rmtree(checkpoint_filepath)
+    # checkpoint_filepath = checkpoint_filepath + '\\' +str(Pitch)
+    # log_dir="c:\\Users\\caizhi.zheng\\code\\For AI\\logs2v5\\"+str(MP)+'-'+str(Pitch)
+    log_dir = os.path.join(os.getcwd(), 'logs')
+    # shutil.rmtree(log_dir,ignore_errors=True)
 
-model.compile(optimizer=optimizer.Adam(learning_rate=lr_schedule), loss='mse', metrics='accuracy')
-# model.reset_states()
-# model.reset_metrics()
-# model.load_weights(checkpoint_filepath)
-# reduce_lr = LearningRateScheduler(scheduler)
-# model.fit(dataset, epochs=25)
-history = model.fit(trainset, validation_data=valiset, steps_per_epoch=80, epochs=5000,
-                    callbacks=[model_checkpoint, early_stop, Board])  # validation_split=0.02,)
-model.evaluate(valiset)
-# test
-# if Pitch != 225:
-#     pitch = int(0.1*Pitch)
-# test_path = 'C:\\Users\\caizhi.zheng\\code\\For AI\\SNP Selection/'+'LT'+str(NT)+ 'MP'+str(MP) +'P'+str(pitch) +'/'
-# saw_set = rf.read_all_networks(test_path)
-# for name in saw_set:
-#     saw = saw_set[name]
-# y0 = saw['900-1100MHZ'].y[:,0,0]
-# test_set = np.ones((801,5))*0.01
-# # test_set = np.zeros((801,5))
-# # data_mm_path = data_path + 'musi.csv'
-# # data_mm = np.genfromtxt(data_mm_path, delimiter=',')
-# # data_mu = data_mm[:5]
-# # data_sigma = data_mm[5:10]
-# # test_set = (test_set * data_sigma) + data_mu
+    model_checkpoint = ModelCheckpoint(filepath=checkpoint_filepath, monitor='val_loss', verbose=1, save_weights_only=True,save_best_only=True, initial_value_threshold=0.025)
+    early_stop = EarlyStopping(monitor='loss', patience=200)
+    Board = tf.keras.callbacks.TensorBoard(log_dir=log_dir, histogram_freq=1)#, profile_batch='10, 20')
+    # opt = optimizer.Adam(learning_rate=lr_schedule)
 
-# test_set = tf.data.Dataset.from_tensors(test_set).batch(1)
-# # model = models.load_model(checkpoint_filepath)
-# # model.evaluate(dataset.batch(BATCHSIZE))
-# model.load_weights(checkpoint_filepath)
-# test_result = model.predict(test_set)
-# print(test_result)
-# # print(test_result.shape)
-# # 反归一化
-# test_result = (test_result[0]*(label_max - label_min)) + label_min
-# print(test_result)
-# result_path = 'c:\\Users\\caizhi.zheng\\code\\For AI\\loss_picture/result' + suffix + '.csv'
-# with open(result_path, 'w') as f:
-#     np.savetxt(f, test_result, delimiter=',')
+    model.compile(optimizer=optimizer.Adam(learning_rate=lr_schedule), loss='mse', metrics='accuracy')
+    # model.reset_states()
+    # model.reset_metrics()
+    # model.load_weights(checkpoint_filepath)
+    # reduce_lr = LearningRateScheduler(scheduler)
+    # model.fit(dataset, epochs=25)
+    history = model.fit(trainset, validation_data=valiset, steps_per_epoch=80, epochs=5000,
+                        callbacks=[model_checkpoint, early_stop, Board])  # validation_split=0.02,)
+    model.evaluate(valiset)
+    print('seed=%d' % se)
+    # test
+    # if Pitch != 225:
+    #     pitch = int(0.1*Pitch)
+    # test_path = 'C:\\Users\\caizhi.zheng\\code\\For AI\\SNP Selection/'+'LT'+str(NT)+ 'MP'+str(MP) +'P'+str(pitch) +'/'
+    # saw_set = rf.read_all_networks(test_path)
+    # for name in saw_set:
+    #     saw = saw_set[name]
+    # y0 = saw['900-1100MHZ'].y[:,0,0]
+    # test_set = np.ones((801,5))*0.01
+    # # test_set = np.zeros((801,5))
+    # # data_mm_path = data_path + 'musi.csv'
+    # # data_mm = np.genfromtxt(data_mm_path, delimiter=',')
+    # # data_mu = data_mm[:5]
+    # # data_sigma = data_mm[5:10]
+    # # test_set = (test_set * data_sigma) + data_mu
+
+    # test_set = tf.data.Dataset.from_tensors(test_set).batch(1)
+    # # model = models.load_model(checkpoint_filepath)
+    # # model.evaluate(dataset.batch(BATCHSIZE))
+    # model.load_weights(checkpoint_filepath)
+    # test_result = model.predict(test_set)
+    # print(test_result)
+    # # print(test_result.shape)
+    # # 反归一化
+    # test_result = (test_result[0]*(label_max - label_min)) + label_min
+    # print(test_result)
+    # result_path = 'c:\\Users\\caizhi.zheng\\code\\For AI\\loss_picture/result' + suffix + '.csv'
+    # with open(result_path, 'w') as f:
+    #     np.savetxt(f, test_result, delimiter=',')
 

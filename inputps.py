@@ -88,36 +88,37 @@ def YtoZS(Y_COM, freq):
     return Y_COM.real, Y_COM.imag, Z_COM.real, S11_COM.real, S11_COM.imag, Q_COM
 
 
-results = []
-origin_paras = np.genfromtxt('G:/Zheng_caizhi/Pycharmprojects/SAW_tf/datas/out/vb.005.csv', delimiter=',')
-for i in range(0,len(origin_paras)):
-    # x = np.array([eta,e,alpha,c,k2,npiezo_1,vb,m_ratio])
-    # x = np.append(origin_paras[i], 0.6)
-    freq = np.linspace(0.5E9, 1.5E9, 501)
-    x = origin_paras[i]
-    y = cacul(x)
-    [Y0_R, Y0_I, Y0_Z, Y0_SR, Y0_SI, Y0_Q] = YtoZS(y, freq)
-    Inputs = np.stack((Y0_R, Y0_I, Y0_Z, Y0_SR, Y0_SI, Y0_Q), axis=-1)
-    results.append(Inputs)
-    print(i)
+if __name__ == '__main__':
+    results = []
+    origin_paras = np.genfromtxt('G:/Zheng_caizhi/Pycharmprojects/SAW_tf/datas/out/6p1k_2.csv', delimiter=',')
+    for i in range(0,len(origin_paras)):
+        # x = np.array([eta,e,alpha,c,k2,npiezo_1,vb,m_ratio])
+        # x = np.append(origin_paras[i], 0.6)
+        freq = np.linspace(0.5E9, 1.5E9, 501)
+        x = origin_paras[i]
+        y = cacul(x)
+        [Y0_R, Y0_I, Y0_Z, Y0_SR, Y0_SI, Y0_Q] = YtoZS(y, freq)
+        Inputs = np.stack((Y0_R, Y0_I, Y0_Z, Y0_SR, Y0_SI, Y0_Q), axis=-1)
+        results.append(Inputs)
+        print(i)
 
-result = np.array(results)
-# file_path = 'D:\\data\\7p\\input2w/2w.npymusi.csv'
-# mu = np.loadtxt(file_path)[:6]
-# sigma = np.loadtxt(file_path)[6:]
+    result = np.array(results)
+    # file_path = 'D:\\data\\7p\\input2w/2w.npymusi.csv'
+    # mu = np.loadtxt(file_path)[:6]
+    # sigma = np.loadtxt(file_path)[6:]
 
-mu = result.reshape(-1, 6).mean(axis=0)
-sigma = result.reshape(-1, 6).std(axis=0)
-result = (result - mu) / sigma
-# if (sigma == 0).all() != True:
-#     result = (result - mu )/ sigma
-# else:
-#     result = result - mu
+    mu = result.reshape(-1, 6).mean(axis=0)
+    sigma = result.reshape(-1, 6).std(axis=0)
+    result = (result - mu) / sigma
+    # if (sigma == 0).all() != True:
+    #     result = (result - mu )/ sigma
+    # else:
+    #     result = result - mu
 
-file_path = 'G:/Zheng_caizhi/Pycharmprojects/SAW_tf/datas/input/vb.npy'
-with open(file_path, 'wb') as f:
-    np.save(f, result)
-file_path1 = file_path + 'musi.csv'
-with open(file_path1, 'w') as f:
-    np.savetxt(f, mu)
-    np.savetxt(f, sigma)
+    file_path = 'G:/Zheng_caizhi/Pycharmprojects/SAW_tf/datas/input/6pk_2.npy'
+    with open(file_path, 'wb') as f:
+        np.save(f, result)
+    file_path1 = file_path + 'musi.csv'
+    with open(file_path1, 'w') as f:
+        np.savetxt(f, mu)
+        np.savetxt(f, sigma)
