@@ -14,21 +14,21 @@ import tensorflow as tf
 from inputps import YtoZS, cacul
 from net import IANN
 
-weights_path_new = 'weights/model-ep152-valoss0.024'
-weights_path_old = 'weights/1'
+weights_path_old = 'weights/model-ep152-valoss0.024'
+weights_path_new = 'weights/model-ep228-valoss0.031'
 freq = np.linspace(5*1e8,1.5*1e9,501)
 
 
 
-musi = np.loadtxt('./datas/input/vb.npymusi.csv')
+musi = np.loadtxt('./datas/input/6pk_2.npymusi.csv')
 mu = musi[:6]
 sigma = musi[6:]
 
-label_path = 'G:/Zheng_caizhi/Pycharmprojects/SAW_tf/datas/out/vb.005.csvmaxmin.csv'
+label_path = 'G:/Zheng_caizhi/Pycharmprojects/SAW_tf/datas/out/6p1k_2.csvmaxmin.csv'
 label_mm = np.genfromtxt(label_path, delimiter=',')
 label_max = label_mm[0]
 label_min = label_mm[1]
-label_path1 = 'G:/Zheng_caizhi/Pycharmprojects/SAW_tf/datas/out/vb.005.csv'
+label_path1 = 'G:/Zheng_caizhi/Pycharmprojects/SAW_tf/datas/out/6p1k_2.csv'
 label = np.genfromtxt(label_path1, delimiter=',')
 
 model_n = IANN()

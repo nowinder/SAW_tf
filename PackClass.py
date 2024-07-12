@@ -4,7 +4,7 @@ import numpy as np
 # from data_gene_ori import sample
 # from data_genev4 import sample
 class Plot_all:
-    def __init__(self, Y_COM, Y_DL, freq, name1,name2='DL_output', path=None, choice=False, yzsqd1 = [], yzsqd2 = []):
+    def __init__(self, Y_COM, Y_DL, freq, name1,name2='normalizated', path=None, choice=False, yzsqd1 = [], yzsqd2 = []):
         self.Y_COM = Y_COM
         self.Y_DL = Y_DL
         self.freq = freq
@@ -96,16 +96,17 @@ class Plot_all:
     def plot_YDB(self):
         plt.plot(self.freq,self.y1,label = self.name1)
         plt.plot(self.freq,self.y2,label = self.name2)
-        plt.ylabel('db / Y_R')
-        plt.title('Absolute Value of Admittance (db)/ Y_R')
+        plt.ylabel('Y_real/log')
+        # plt.title('Absolute Value of Admittance (db)/ Y_R')
+        plt.title('Impedance (Real part)')
         plt.grid('on')
         plt.legend()    
     def plot_ZR(self):
         plt.plot(self.freq,self.z1,label = self.name1)
         plt.plot(self.freq,self.z2,label = self.name2)
-        plt.ylabel('absolute value (log) / Y_I')
+        plt.ylabel('Y_imag/log')
         # plt.yscale('log')
-        plt.title('Impedance (Real part) / Y_I')
+        plt.title('Impedance (Imaginary part)')
         plt.grid('on')
         plt.legend()
     def plot_SR(self):
@@ -113,7 +114,7 @@ class Plot_all:
         plt.plot(self.freq,self.s2r,label = self.name2)
         plt.ylabel('absolute value')
         plt.title('S11 real part / Z_R')
-        plt.yscale('log')
+        # plt.yscale('log')
         plt.grid('on')
         plt.legend()        
     def plot_SI(self):

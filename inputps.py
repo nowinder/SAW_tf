@@ -17,11 +17,14 @@ def cacul(paras):
     c = paras[4]
     k2 = paras[5]
     vb = paras[6]
+    # n1 = paras[7]
+    # W1 = paras[8]
     epsilon_0 = 8.8541878128e-12 #The permittivity of vacuum
-    pI = 3600E-9 #The period of IDT, normally is one wavelength
+    pI = 4000E-9 #The period of IDT, normally is one wavelength
+    W1 = 40*pI
     h = 0.08*pI #The thickness of IDT, Al or Al-Cu1%
-    W1 = 20*pI # Width of IDT (acoustic aperture), in m
-    m_ratio = 0.6 #The metallization ratio
+    # W1 = 20*pI # Width of IDT (acoustic aperture), in m
+    m_ratio = 0.5 #The metallization ratio
 
     eta_b = (eta+2*abs(e))/2
     epsilon = npiezo_1*epsilon_0
@@ -34,7 +37,8 @@ def cacul(paras):
     km2 = special.ellipk(m2, out=None)
     p2 = 2*km2/np.pi
     p_factor = p1/p2
-    freq = np.linspace(0.5E9, 1.5E9, 501)
+    # freq = np.linspace(0.5E9, 1.5E9, 501)
+    freq = np.linspace(0.9E9, 1.25E9, 1001)
     # freq_mhz = freq/1e6
     delta_v = - (eta**2)/2
     k = abs(e)*(eta+abs(e)/2)
@@ -60,7 +64,7 @@ def cacul(paras):
     lam1 = pI # Wavelength in m of SAW filters 
     c12 = -1j*c*(k+kb*v_delta) # Reflectivity per unit length (~1.7% reflected per IDT spaced at lam/2)
     a1 = -xi # The transduction coefficient
-    n1 = 100 # The number of IDT pairs
+    n1 = 61
     L1 = n1*lam1 # Length of total IDT the grating, in m
     #W1 = 22*lam1 # Width of IDT (acoustic aperture), in m
     #d = sc.delta(freq,v1,lam1) - 500j
@@ -70,7 +74,7 @@ def cacul(paras):
     C1 = sc.C0(freq,Ct)
     idt_ref_1 = sc.pmatrix(lam1,c12,a1,L1,d1,C1) #The P-Matrix of SAW resonator with refelection 
     # y11 = 20 * np.log10(abs(idt_ref_1.p33)/5)
-    y11 = (idt_ref_1.p33)/5
+    y11 = (idt_ref_1.p33)
     return y11
 
 
@@ -85,16 +89,16 @@ def YtoZS(Y_COM, freq):
     Q_COM = 2*np.pi*(freq)*group_delay *abs(S11_COM)/(1-abs(S11_COM)**2)
 
     # DSP_COM = 10*np.log10(1-abs(S11_COM)**2)
-    return Y_COM.real, Y_COM.imag, Z_COM.real, S11_COM.real, S11_COM.imag, Q_COM
+    return np.log10(Y_COM).real, np.log10(Y_COM).imag, np.log10(Z_COM).real, np.log10(S11_COM).real, np.log10(S11_COM).imag, Q_COM
 
 
 if __name__ == '__main__':
     results = []
-    origin_paras = np.genfromtxt('G:/Zheng_caizhi/Pycharmprojects/SAW_tf/datas/out/6p1k_2.csv', delimiter=',')
+    origin_paras = np.genfromtxt('G:/Zheng_caizhi/Pycharmprojects/SAW_tf/datas/out/vali600.csv', delimiter=',')
     for i in range(0,len(origin_paras)):
         # x = np.array([eta,e,alpha,c,k2,npiezo_1,vb,m_ratio])
         # x = np.append(origin_paras[i], 0.6)
-        freq = np.linspace(0.5E9, 1.5E9, 501)
+        freq = np.linspace(0.9E9, 1.25E9, 1001)
         x = origin_paras[i]
         y = cacul(x)
         [Y0_R, Y0_I, Y0_Z, Y0_SR, Y0_SI, Y0_Q] = YtoZS(y, freq)
@@ -115,7 +119,7 @@ if __name__ == '__main__':
     # else:
     #     result = result - mu
 
-    file_path = 'G:/Zheng_caizhi/Pycharmprojects/SAW_tf/datas/input/6pk_2.npy'
+    file_path = 'G:/Zheng_caizhi/Pycharmprojects/SAW_tf/datas/input/vali_log.npy'
     with open(file_path, 'wb') as f:
         np.save(f, result)
     file_path1 = file_path + 'musi.csv'

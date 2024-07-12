@@ -138,7 +138,7 @@ def conv():  # model3v1
 
 lr_schedule = tf.keras.optimizers.schedules.InverseTimeDecay(
     0.001,
-    decay_steps=4000,
+    decay_steps=8000,
     #   10的decay训练有些过于慢了
     decay_rate=1,
     staircase=False)
@@ -147,14 +147,14 @@ lr_schedule = tf.keras.optimizers.schedules.InverseTimeDecay(
 if __name__ == '__main__':
     model = IANN()
     freq = np.linspace(5 * 1e8, 1.5 * 1e9, 501)
-    data_path = 'G:/Zheng_caizhi/Pycharmprojects/SAW_tf/datas/input/6pk_2.npy'
+    data_path = 'G:/Zheng_caizhi/Pycharmprojects/SAW_tf/datas/input/7p9w_log.npy'
     data = np.load(data_path)
-    vali_path = 'G:/Zheng_caizhi/Pycharmprojects/SAW_tf/datas/input/vali600n.npy'
+    vali_path = 'G:/Zheng_caizhi/Pycharmprojects/SAW_tf/datas/input/vali_logn.npy'
     vali = np.load(vali_path)
     # data2_path = 'D:\\data\\7p/input2w/2w_0.5.npy'
     # data2 = np.load(data2_path)
     # data = np.concatenate((data1, data2))
-    label_path1 = 'G:/Zheng_caizhi/Pycharmprojects/SAW_tf/datas/out/6p1k_2.csv'
+    label_path1 = 'G:/Zheng_caizhi/Pycharmprojects/SAW_tf/datas/out/7p9w.csv'
     # label_path2 = 'D:\\data\\7p/out/MP60_0.5.csv'
     label = np.genfromtxt(label_path1, delimiter=',')
     valilabel_path1 = 'G:/Zheng_caizhi/Pycharmprojects/SAW_tf/datas/out/vali600.csv'
@@ -186,18 +186,18 @@ if __name__ == '__main__':
     log_dir = os.path.join(os.getcwd(), 'logs')
     # shutil.rmtree(log_dir,ignore_errors=True)
 
-    model_checkpoint = ModelCheckpoint(filepath=checkpoint_filepath, monitor='val_loss', verbose=1, save_weights_only=True,save_best_only=True, initial_value_threshold=0.025)
-    early_stop = EarlyStopping(monitor='loss', patience=200)
+    model_checkpoint = ModelCheckpoint(filepath=checkpoint_filepath, monitor='loss', verbose=1, save_weights_only=True,save_best_only=True, initial_value_threshold=0.001)
+    early_stop = EarlyStopping(monitor='val_loss', patience=500)
     Board = tf.keras.callbacks.TensorBoard(log_dir=log_dir, histogram_freq=1)#, profile_batch='10, 20')
     # opt = optimizer.Adam(learning_rate=lr_schedule)
 
-    model.compile(optimizer=optimizer.Adam(learning_rate=lr_schedule), loss='mse', metrics='accuracy')
+    model.compile(optimizer=optimizer.Adam(learning_rate=0.001), loss='mse', metrics='accuracy')
     # model.reset_states()
     # model.reset_metrics()
     # model.load_weights(checkpoint_filepath)
     # reduce_lr = LearningRateScheduler(scheduler)
     # model.fit(dataset, epochs=25)
-    history = model.fit(trainset, validation_data=valiset, steps_per_epoch=80, epochs=5000,
+    history = model.fit(trainset, validation_data=valiset, steps_per_epoch=80, epochs=2000,
                         callbacks=[model_checkpoint, early_stop, Board])  # validation_split=0.02,)
     model.evaluate(valiset)
     print('seed=%d' % se)
