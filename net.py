@@ -7,61 +7,61 @@ import keras.optimizers as optimizer
 import numpy as np
 # import matplotlib.pyplot as plt
 import tensorflow as tf
-from keras import Input, Model
-from keras.callbacks import ModelCheckpoint, EarlyStopping
+from keras import Input, Model, backend
+from keras.callbacks import ModelCheckpoint, EarlyStopping, LearningRateScheduler
 # import skrf as rf
 # from data_gene_2paras import cacul
-from keras.layers import Lambda, Concatenate, Dense, Conv1D, Flatten
+from keras.layers import Lambda, Concatenate, Dense, Conv1D, Flatten, MaxPool1D
 
 
 def IANN():
-    input = Input(shape=(501, 6))
+    input = Input(shape=(1001, 6))
     branch1 = Lambda(lambda x: x[:, :, 0])(input)
     branch2 = Lambda(lambda x: x[:, :, 1])(input)
     branch3 = Lambda(lambda x: x[:, :, 2])(input)
     branch4 = Lambda(lambda x: x[:, :, 3])(input)
     branch5 = Lambda(lambda x: x[:, :, 4])(input)
     branch6 = Lambda(lambda x: x[:, :, 5])(input)
-    h1 = Dense(1003, activation='relu', kernel_initializer='he_uniform')(branch1)
-    h2 = Dense(1003, activation='relu', kernel_initializer='he_uniform')(branch2)
-    h3 = Dense(1003, activation='relu', kernel_initializer='he_uniform')(branch3)
-    h4 = Dense(1003, activation='relu', kernel_initializer='he_uniform')(branch4)
-    h5 = Dense(1003, activation='relu', kernel_initializer='he_uniform')(branch5)
-    h6 = Dense(1003, activation='relu', kernel_initializer='he_uniform')(branch6)
-    h1 = Dense(1003, activation='relu', kernel_initializer='he_uniform',
+    h1 = Dense(2003, activation='relu', kernel_initializer='he_uniform')(branch1)
+    h2 = Dense(2003, activation='relu', kernel_initializer='he_uniform')(branch2)
+    h3 = Dense(2003, activation='relu', kernel_initializer='he_uniform')(branch3)
+    h4 = Dense(2003, activation='relu', kernel_initializer='he_uniform')(branch4)
+    h5 = Dense(2003, activation='relu', kernel_initializer='he_uniform')(branch5)
+    h6 = Dense(2003, activation='relu', kernel_initializer='he_uniform')(branch6)
+    h1 = Dense(1001, activation='relu', kernel_initializer='he_uniform',
                kernel_regularizer=tf.keras.regularizers.L1L2(l1=0.00, l2=0.00000))(h1)
     # h1 = Dropout(0.2)(h1)
-    h2 = Dense(1003, activation='relu', kernel_initializer='he_uniform',
+    h2 = Dense(1001, activation='relu', kernel_initializer='he_uniform',
                kernel_regularizer=tf.keras.regularizers.L1L2(l1=0.00, l2=0.00000))(h2)
     # h2 = Dropout(0.2)(h2)
-    h3 = Dense(1003, activation='relu', kernel_initializer='he_uniform',
+    h3 = Dense(1001, activation='relu', kernel_initializer='he_uniform',
                kernel_regularizer=tf.keras.regularizers.L1L2(l1=0.00, l2=0.00000))(h3)
     # h3 = Dropout(0.2)(h3)
-    h4 = Dense(1003, activation='relu', kernel_initializer='he_uniform',
+    h4 = Dense(1001, activation='relu', kernel_initializer='he_uniform',
                kernel_regularizer=tf.keras.regularizers.L1L2(l1=0.00, l2=0.00000))(h4)
     # h4 = Dropout(0.2)(h4)
-    h5 = Dense(1003, activation='relu', kernel_initializer='he_uniform',
+    h5 = Dense(1001, activation='relu', kernel_initializer='he_uniform',
                kernel_regularizer=tf.keras.regularizers.L1L2(l1=0.00, l2=0.00000))(h5)
     # h5 = Dropout(0.2)(h5)
-    h6 = Dense(1003, activation='relu', kernel_initializer='he_uniform',
+    h6 = Dense(1001, activation='relu', kernel_initializer='he_uniform',
                kernel_regularizer=tf.keras.regularizers.L1L2(l1=0.00, l2=0.00000))(h6)
     # h6 = Dropout(0.2)(h6)
-    h1 = Dense(1003, activation='relu', kernel_initializer='he_uniform',
+    h1 = Dense(1001, activation='relu', kernel_initializer='he_uniform',
                kernel_regularizer=tf.keras.regularizers.L1L2(l1=0.00, l2=0.00000))(h1)
     # h1 = Dropout(0.2)(h1)
-    h2 = Dense(1003, activation='relu', kernel_initializer='he_uniform',
+    h2 = Dense(1001, activation='relu', kernel_initializer='he_uniform',
                kernel_regularizer=tf.keras.regularizers.L1L2(l1=0.00, l2=0.00000))(h2)
     # h2 = Dropout(0.2)(h2)
-    h3 = Dense(1003, activation='relu', kernel_initializer='he_uniform',
+    h3 = Dense(1001, activation='relu', kernel_initializer='he_uniform',
                kernel_regularizer=tf.keras.regularizers.L1L2(l1=0.00, l2=0.00000))(h3)
     # h3 = Dropout(0.2)(h3)
-    h4 = Dense(1003, activation='relu', kernel_initializer='he_uniform',
+    h4 = Dense(1001, activation='relu', kernel_initializer='he_uniform',
                kernel_regularizer=tf.keras.regularizers.L1L2(l1=0.00, l2=0.00000))(h4)
     # h4 = Dropout(0.2)(h4)
-    h5 = Dense(1003, activation='relu', kernel_initializer='he_uniform',
+    h5 = Dense(1001, activation='relu', kernel_initializer='he_uniform',
                kernel_regularizer=tf.keras.regularizers.L1L2(l1=0.00, l2=0.00000))(h5)
     # h5 = Dropout(0.2)(h5)
-    h6 = Dense(1003, activation='relu', kernel_initializer='he_uniform',
+    h6 = Dense(1001, activation='relu', kernel_initializer='he_uniform',
                kernel_regularizer=tf.keras.regularizers.L1L2(l1=0.00, l2=0.00000))(h6)
     # h6 = Dropout(0.2)(h6)
 
@@ -81,6 +81,10 @@ def IANN():
     out1 = Concatenate(axis=-1)((h1, h2, h3, h4, h5, h6))
     # out1 = Dense(100, activation='relu', kernel_initializer='he_uniform',kernel_regularizer=tf.keras.regularizers.L1L2(l1=0.00,l2=0.00000))(out1) #model2v6
     # out1 = Dense(100, activation='relu', kernel_initializer='he_uniform',kernel_regularizer=tf.keras.regularizers.L1L2(l1=0.00,l2=0.00000))(out1) #model2v6
+    # out1 = Dense(2045, activation='relu', kernel_initializer='he_uniform',
+    #              kernel_regularizer=tf.keras.regularizers.L1L2(l1=0.00, l2=0.00000))(out1)  # model2v6
+    out1 = Dense(1023, activation='relu', kernel_initializer='he_uniform',
+                 kernel_regularizer=tf.keras.regularizers.L1L2(l1=0.00, l2=0.00000))(out1)  # model2v6
     out1 = Dense(511, activation='relu', kernel_initializer='he_uniform',
                  kernel_regularizer=tf.keras.regularizers.L1L2(l1=0.00, l2=0.00000))(out1)  # model2v6
     # out1 = Dropout(0.2)(out1)
@@ -103,6 +107,62 @@ def IANN():
     model.summary()
     return model
 
+def IANN2():
+    input = Input(shape=(1001, 2))
+    branch1 = Lambda(lambda x: x[:, :, 0])(input)
+    branch2 = Lambda(lambda x: x[:, :, 1])(input)
+    h1 = Dense(2003, activation='gelu', kernel_initializer='he_uniform')(branch1)
+    h2 = Dense(2003, activation='gelu', kernel_initializer='he_uniform')(branch2)
+    h1 = Dense(4007, activation='gelu', kernel_initializer='he_uniform',
+               kernel_regularizer=tf.keras.regularizers.L1L2(l1=0.00, l2=0.00000))(h1)
+    # h1 = Dropout(0.2)(h1)
+    h2 = Dense(4007, activation='gelu', kernel_initializer='he_uniform',
+               kernel_regularizer=tf.keras.regularizers.L1L2(l1=0.00, l2=0.00000))(h2)
+    # h2 = Dropout(0.2)(h2)
+    # h6 = Dropout(0.2)(h6)
+
+    # h1 = Dense(3207,activation='relu', kernel_initializer='he_uniform')(h1)
+    # h2 = Dense(3207,activation='relu', kernel_initializer='he_uniform')(h2)
+    # h3 = Dense(3207,activation='relu', kernel_initializer='he_uniform')(h3)
+    # h4 = Dense(3207,activation='relu', kernel_initializer='he_uniform')(h4)
+    # h5 = Dense(3207,activation='relu', kernel_initializer='he_uniform')(h5)
+    # hn drop?
+    # o1 = Dense(16,activation='relu', kernel_initializer='he_uniform',kernel_regularizer=tf.keras.regularizers.L1L2(l1=0.00,l2=0.00000))(h1)
+    # o2 = Dense(16,activation='relu', kernel_initializer='he_uniform',kernel_regularizer=tf.keras.regularizers.L1L2(l1=0.00,l2=0.00000))(h2)
+    # o3 = Dense(16,activation='relu', kernel_initializer='he_uniform',kernel_regularizer=tf.keras.regularizers.L1L2(l1=0.00,l2=0.00000))(h3)
+    # o4 = Dense(16,activation='relu', kernel_initializer='he_uniform',kernel_regularizer=tf.keras.regularizers.L1L2(l1=0.00,l2=0.00000))(h4)
+    # o5 = Dense(16,activation='relu', kernel_initializer='he_uniform',kernel_regularizer=tf.keras.regularizers.L1L2(l1=0.00,l2=0.00000))(h5)
+    # o6 = Dense(16,activation='relu', kernel_initializer='he_uniform',kernel_regularizer=tf.keras.regularizers.L1L2(l1=0.00,l2=0.00000))(h6)
+    # out1 = Concatenate(axis = -1)((o1,o2,o3,o4,o5,o6))
+    out1 = Concatenate(axis=-1)((h1, h2))
+    # out1 = Dense(100, activation='relu', kernel_initializer='he_uniform',kernel_regularizer=tf.keras.regularizers.L1L2(l1=0.00,l2=0.00000))(out1) #model2v6
+    # out1 = Dense(100, activation='relu', kernel_initializer='he_uniform',kernel_regularizer=tf.keras.regularizers.L1L2(l1=0.00,l2=0.00000))(out1) #model2v6
+    out1 = Dense(2045, activation='gelu', kernel_initializer='he_uniform',
+                 kernel_regularizer=tf.keras.regularizers.L1L2(l1=0.00, l2=0.00000))(out1)  # model2v6
+    out1 = Dense(1023, activation='gelu', kernel_initializer='he_uniform',
+                 kernel_regularizer=tf.keras.regularizers.L1L2(l1=0.00, l2=0.00000))(out1)  # model2v6
+    out1 = Dense(511, activation='gelu', kernel_initializer='he_uniform',
+                 kernel_regularizer=tf.keras.regularizers.L1L2(l1=0.00, l2=0.00000))(out1)  # model2v6
+    # out1 = Dropout(0.2)(out1)
+    out1 = Dense(255, activation='gelu', kernel_initializer='he_uniform',
+                 kernel_regularizer=tf.keras.regularizers.L1L2(l1=0.00, l2=0.00000))(out1)  # model2v6
+    # out1 = Dropout(0.2)(out1)
+    out1 = Dense(127, activation='gelu', kernel_initializer='he_uniform',
+                 kernel_regularizer=tf.keras.regularizers.L1L2(l1=0.00, l2=0.00000))(out1)  # model2v6
+    # out1 = Dropout(0.2)(out1)
+    out1 = Dense(63, activation='gelu', kernel_initializer='he_uniform',
+                 kernel_regularizer=tf.keras.regularizers.L1L2(l1=0.00, l2=0.00000))(out1)  # model2v6
+    # out1 = Dropout(0.2)(out1)
+    out1 = Dense(31, activation='gelu', kernel_initializer='he_uniform',
+                 kernel_regularizer=tf.keras.regularizers.L1L2(l1=0.00, l2=0.00000))(out1)  # model2v6
+    # out1 = Dropout(0.2)(out1)
+    h2 = Dense(15, activation='gelu', kernel_initializer='he_uniform',
+               kernel_regularizer=tf.keras.regularizers.L1L2(l1=0.00, l2=0.00000))(out1)
+    # h2 = MaxPool1D()(h2)
+    out2 = Dense(7, activation='sigmoid', kernel_initializer='he_uniform')(h2)
+    model = Model(inputs=input, outputs=out2)
+    model.summary()
+    return model
 
 def conv():  # model3v1
     input = Input(shape=(801, 5))
@@ -138,15 +198,24 @@ def conv():  # model3v1
 
 lr_schedule = tf.keras.optimizers.schedules.InverseTimeDecay(
     0.001,
-    decay_steps=8000,
+    decay_steps=800,
     #   10的decay训练有些过于慢了
     decay_rate=1,
     staircase=False)
 
+def scheduler(epoch):
+    # lr = backend.get_value(model.optimizer.lr)
+    # if epoch < 1000:
+    #     backend.set_value(model.optimizer.lr,0.001)
+    
+    if epoch >=200:
+        new_lr = lr_schedule(epoch)
+        backend.set_value(model.optimizer.lr, new_lr)
+    return backend.get_value(model.optimizer.lr)
 
 if __name__ == '__main__':
-    model = IANN()
-    freq = np.linspace(5 * 1e8, 1.5 * 1e9, 501)
+    model = IANN2()
+    # freq = np.linspace(5 * 1e8, 1.5 * 1e9, 501)
     data_path = 'G:/Zheng_caizhi/Pycharmprojects/SAW_tf/datas/input/7p9w_log.npy'
     data = np.load(data_path)
     vali_path = 'G:/Zheng_caizhi/Pycharmprojects/SAW_tf/datas/input/vali_logn.npy'
@@ -167,14 +236,15 @@ if __name__ == '__main__':
     label_min = label_mm[1]
     label = (label - label_min) / (label_max - label_min)
     valilabel = (valilabel - label_min) / (label_max - label_min)
-    data_set = tf.data.Dataset.zip((tf.data.Dataset.from_tensor_slices(data), tf.data.Dataset.from_tensor_slices(label)))
-    vali_set = tf.data.Dataset.zip((tf.data.Dataset.from_tensor_slices(vali), tf.data.Dataset.from_tensor_slices(valilabel)))
+    data_set = tf.data.Dataset.zip((tf.data.Dataset.from_tensor_slices(data).map(lambda x:x[:,:2]), tf.data.Dataset.from_tensor_slices(label)))
+    vali_set = tf.data.Dataset.zip((tf.data.Dataset.from_tensor_slices(vali).map(lambda x:x[:,:2]), tf.data.Dataset.from_tensor_slices(valilabel)))
     BATCHSIZE = 128
     # dataset = data_set
     # valiset = dataset.take(128).batch(BATCHSIZE).cache().prefetch(tf.data.AUTOTUNE)
     # trainset = dataset.skip(128)
-    se =random.randint(1,int(10e5))
-    print('seed=%d' % se)
+    se =random.randint(1,int(10e2))
+    print('seed=%d' % se) # 333
+    # se=333
     trainset = data_set.cache().shuffle(data_set.cardinality(), seed=se, reshuffle_each_iteration=True).repeat().batch(
         BATCHSIZE).prefetch(tf.data.AUTOTUNE)
     valiset = vali_set.batch(BATCHSIZE).cache().prefetch(tf.data.AUTOTUNE)
@@ -186,19 +256,20 @@ if __name__ == '__main__':
     log_dir = os.path.join(os.getcwd(), 'logs')
     # shutil.rmtree(log_dir,ignore_errors=True)
 
-    model_checkpoint = ModelCheckpoint(filepath=checkpoint_filepath, monitor='loss', verbose=1, save_weights_only=True,save_best_only=True, initial_value_threshold=0.001)
+    model_checkpoint = ModelCheckpoint(filepath=checkpoint_filepath, monitor='loss', verbose=1, save_weights_only=True,save_best_only=True, initial_value_threshold=0.003)
     early_stop = EarlyStopping(monitor='val_loss', patience=500)
-    Board = tf.keras.callbacks.TensorBoard(log_dir=log_dir, histogram_freq=1)#, profile_batch='10, 20')
+    Board = tf.keras.callbacks.TensorBoard(log_dir=log_dir, histogram_freq=20)#, profile_batch='10, 20')
     # opt = optimizer.Adam(learning_rate=lr_schedule)
 
     model.compile(optimizer=optimizer.Adam(learning_rate=0.001), loss='mse', metrics='accuracy')
+    reduce_lr = LearningRateScheduler(scheduler)
     # model.reset_states()
     # model.reset_metrics()
     # model.load_weights(checkpoint_filepath)
     # reduce_lr = LearningRateScheduler(scheduler)
     # model.fit(dataset, epochs=25)
-    history = model.fit(trainset, validation_data=valiset, steps_per_epoch=80, epochs=2000,
-                        callbacks=[model_checkpoint, early_stop, Board])  # validation_split=0.02,)
+    history = model.fit(trainset, validation_data=valiset, steps_per_epoch=80, epochs=5000,
+                        callbacks=[model_checkpoint, reduce_lr, early_stop, Board])  # validation_split=0.02,)
     model.evaluate(valiset)
     print('seed=%d' % se)
     # test
