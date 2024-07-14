@@ -243,7 +243,7 @@ if __name__ == '__main__':
     # valiset = dataset.take(128).batch(BATCHSIZE).cache().prefetch(tf.data.AUTOTUNE)
     # trainset = dataset.skip(128)
     se =random.randint(1,int(10e2))
-    print('seed=%d' % se) # 333
+    print('seed=%d' % se) # 333 414
     # se=333
     trainset = data_set.cache().shuffle(data_set.cardinality(), seed=se, reshuffle_each_iteration=True).repeat().batch(
         BATCHSIZE).prefetch(tf.data.AUTOTUNE)
