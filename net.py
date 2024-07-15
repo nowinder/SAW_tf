@@ -12,7 +12,7 @@ from keras.callbacks import ModelCheckpoint, EarlyStopping, LearningRateSchedule
 # import skrf as rf
 # from data_gene_2paras import cacul
 from keras.layers import Lambda, Concatenate, Dense, Conv1D, Flatten, MaxPool1D
-
+from net_c.mlp_mixer_1d import MLPMixer_1d
 
 def IANN():
     input = Input(shape=(1001, 6))
@@ -107,6 +107,13 @@ def IANN():
     model.summary()
     return model
 
+def mm():
+    inputs = Input(shape=(1001,2))
+    mm = MLPMixer_1d(num_classes=7, num_blocks=2, sample_size=101, hidden_dim=32,tokens_mlp_dim=128, channels_mlp_dim=512)(inputs)
+    model = tf.keras.Model(inputs =inputs,outputs=mm)
+    model.summary()
+    return model
+
 def IANN2():
     input = Input(shape=(1001, 2))
     branch1 = Lambda(lambda x: x[:, :, 0])(input)
@@ -159,7 +166,7 @@ def IANN2():
     h2 = Dense(15, activation='gelu', kernel_initializer='he_uniform',
                kernel_regularizer=tf.keras.regularizers.L1L2(l1=0.00, l2=0.00000))(out1)
     # h2 = MaxPool1D()(h2)
-    out2 = Dense(7, activation='sigmoid', kernel_initializer='he_uniform')(h2)
+    out2 = Dense(7, kernel_initializer='zeros')(h2)
     model = Model(inputs=input, outputs=out2)
     model.summary()
     return model
@@ -214,7 +221,8 @@ def scheduler(epoch):
     return backend.get_value(model.optimizer.lr)
 
 if __name__ == '__main__':
-    model = IANN2()
+    # model = IANN2()
+    model = mm()
     # freq = np.linspace(5 * 1e8, 1.5 * 1e9, 501)
     data_path = 'G:/Zheng_caizhi/Pycharmprojects/SAW_tf/datas/input/7p9w_log.npy'
     data = np.load(data_path)
@@ -258,7 +266,7 @@ if __name__ == '__main__':
 
     model_checkpoint = ModelCheckpoint(filepath=checkpoint_filepath, monitor='loss', verbose=1, save_weights_only=True,save_best_only=True, initial_value_threshold=0.003)
     early_stop = EarlyStopping(monitor='val_loss', patience=500)
-    Board = tf.keras.callbacks.TensorBoard(log_dir=log_dir, histogram_freq=20)#, profile_batch='10, 20')
+    Board = tf.keras.callbacks.TensorBoard(log_dir=log_dir, histogram_freq=50)#, profile_batch='10, 20')
     # opt = optimizer.Adam(learning_rate=lr_schedule)
 
     model.compile(optimizer=optimizer.Adam(learning_rate=0.001), loss='mse', metrics='accuracy')
