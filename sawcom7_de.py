@@ -7,26 +7,23 @@ Reproduced from "Surface Acoustic Wave Filters" by David Morgan, 2nd edition
 Chapter 8, page 245
 
 '''
-sin_exp_values = []
-sin_BB =[]
-cos_exp_values = []
-cos_BB =[]
-def sin_d(x):
+
+def sin_d(self,x):
     a = np.real(x)
     b = np.imag(x)
-    sin_exp_values.append(2*np.exp(-b))
-    sin_BB.append(b)
+    self.sin_exp_values.append(2*np.exp(-b))
+    self.sin_BB.append(b)
     return np.divide(1, 2*np.exp(-b)+1e-30)*(np.sin(a)*(1+np.exp(-2*b)) + 1j*(np.cos(a)*(1-np.exp(-2*b))))
     # m = np.abs(x)
     # phi = np.angle(x)
     # ee = m*np.exp(phi*1j)
     # return (np.exp(ee*1j)-np.exp(-ee*1j))/(2j)
 
-def cos_d(x):
+def cos_d(self,x):
     a = np.real(x)
     b = np.imag(x)
-    cos_exp_values.append(2*np.exp(-b))
-    cos_BB.append(b)
+    self.cos_exp_values.append(2*np.exp(-b))
+    self.cos_BB.append(b)
     return np.divide(1, 2*np.exp(-b)+1e-30)*(np.cos(a)*(1+np.exp(-2*b)) - 1j*(np.sin(a)*(1-np.exp(-2*b))))
     # m = np.abs(x)
     # phi = np.angle(x)
@@ -52,73 +49,75 @@ def C0(freq,Ct):
     omega = freq*2*np.pi
     return 1j*omega*Ct
 
-def K1(a1,c12, delta):
+def K1(self):
     # Returns particular integral solution 1
-    s = np.sqrt(delta**2 - np.abs(c12)**2 + 0j)
-    return (np.conj(a1)*c12 - 1j*delta*a1)/(delta**2 - np.abs(c12)**2)
+    # 定义了s又不用？
+    # s = np.sqrt(self.delta**2 - np.abs(self.c12)**2 + 0j)
+    return (np.conj(self.a1)*self.c12 - 1j*self.delta*self.a1)/(self.delta**2 - np.abs(self.c12)**2)
 
 
-def K2(a1,c12, delta):
+def K2(self):
     # Returns particular integral solution 2 
-    s = np.sqrt(delta**2 - np.abs(c12)**2 + 0j)
-    return (a1*np.conj(c12) + 1j*delta*np.conj(a1))/((delta**2 - np.abs(c12)**2))
+    # 定义了s又不用？
+    # s = np.sqrt(self.delta**2 - np.abs(self.c12)**2 + 0j)
+    return (self.a1*np.conj(self.c12) + 1j*self.delta*np.conj(self.a1))/((self.delta**2 - np.abs(self.c12)**2))
 
-def p11(c12,L,delta):
-    s = np.sqrt(delta**2 - np.abs(c12**2) + 0j)
+def p11(self):
+    s = np.sqrt(self.delta**2 - np.abs(self.c12**2) + 0j)
     # s = np.around(s,6)
     # L = np.around(L,6)
-    a = s*L
+    a = s*self.L
     # a = a.real%(2*np.pi)+1j*(a.imag%(2*np.pi))
     # s =  np.real(s)*np.sign(delta) + 1j*np.imag(s)
     # return -np.conj(c12)*sin_d(a)/(s*np.cos(a) + 1j*delta*sin_d(a))
-    return -np.conj(c12)*sin_d(a)/(s*cos_d(a) + 1j*delta*sin_d(a))
+    return -np.conj(self.c12)*sin_d(self,a)/(s*cos_d(self,a) + 1j*self.delta*sin_d(self,a))
 
-def p22(c12,L,delta, lam):
-    s = np.sqrt(delta**2 - np.abs(c12**2) + 0j)
-    kc = 2*np.pi/lam
+def p22(self):
+    s = np.sqrt(self.delta**2 - np.abs(self.c12**2) + 0j)
+    kc = 2*np.pi/self.lam
     # s = np.around(s,6)
     # L = np.around(L,6)
-    a = s*L
+    a = s*self.L
     # a = a.real%(2*np.pi)+1j*(a.imag%(2*np.pi))
     # return c12*sin_d(a)*np.exp(-2j*kc*L)/(s*cos_d(a) + 1j*delta*sin_d(a))
-    return c12*sin_d(a)*np.exp(-2j*kc*L)/(s*cos_d(a) + 1j*delta*sin_d(a))
+    return self.c12*sin_d(self,a)*np.exp(-2j*kc*self.L)/(s*cos_d(self,a) + 1j*self.delta*sin_d(self,a))
 
-def p12(c12, L, delta, lam):
-    s = np.sqrt(delta**2 - np.abs(c12**2) + 0j)
-    kc = 2*np.pi/lam
+def p12(self):
+    s = np.sqrt(self.delta**2 - np.abs(self.c12**2) + 0j)
+    kc = 2*np.pi/self.lam
     # s = np.around(s,6)
     # L = np.around(L,6)
-    a = s*L
+    a = s*self.L
     # a = a.real%(2*np.pi)+1j*(a.imag%(2*np.pi))
-    return s*np.exp(-1j*kc*L)/(s*cos_d(a) + 1j*delta*sin_d(a))
+    return s*np.exp(-1j*kc*self.L)/(s*cos_d(self,a) + 1j*self.delta*sin_d(self,a))
 
-def p31(c12,a1,L, delta):
-    K_2 = K2(a1,c12,delta)
-    s = np.sqrt(delta**2 - np.abs(c12)**2 + 0j)
+def p31(self):
+    K_2 = K2(self)
+    s = np.sqrt(self.delta**2 - np.abs(self.c12)**2 + 0j)
     # s = np.around(s,6)
     # L = np.around(L,6)
-    a = s*L
+    a = s*self.L
     # a = a.real%(2*np.pi)+1j*(a.imag%(2*np.pi))
-    P_31 = (2*np.conj(a1)*sin_d(a)- 2*s*K_2*(cos_d(a)-1))/(s*cos_d(a) + 1j*delta*sin_d(a))
+    P_31 = (2*np.conj(self.a1)*sin_d(self,a)- 2*s*K_2*(cos_d(self,a)-1))/(s*cos_d(self,a) + 1j*self.delta*sin_d(self,a))
     return P_31
 
-def p32(c12,a1,L,delta,lam):
-    K_1 = K1(a1,c12,delta)
-    kc = 2*np.pi/lam
-    s = np.sqrt(delta**2 - np.abs(c12)**2 + 0j)
+def p32(self):
+    K_1 = K1(self)
+    kc = 2*np.pi/self.lam
+    s = np.sqrt(self.delta**2 - np.abs(self.c12)**2 + 0j)
     # s = np.around(s,6)
     # L = np.around(L,6)
-    a = s*L
+    a = s*self.L
     # a = a.real%(2*np.pi)+1j*(a.imag%(2*np.pi))
-    P_32 = np.exp(-1j*kc*L)*(-2*a1*sin_d(a)- 2*s*K_1*(cos_d(a)-1))/(s*cos_d(a) + 1j*delta*sin_d(a))
+    P_32 = np.exp(-1j*kc*self.L)*(-2*self.a1*sin_d(self,a)- 2*s*K_1*(cos_d(self,a)-1))/(s*cos_d(self,a) + 1j*self.delta*sin_d(self,a))
     return P_32
 
-def p33(c12,a1,L,delta,lam,C0):
-    K_1 = K1(a1,c12,delta)
-    K_2 = K2(a1,c12,delta)
-    kc = 2*np.pi/lam
-    P_33 = -K_1*p31(c12,a1,L, delta) - K_2*p32(c12,a1,L,delta,lam)*np.exp(1j*kc*L)+ 2*(np.conj(a1)*K_1 - a1*K_2)*L+C0
-    return P_33, sin_exp_values, sin_BB, cos_exp_values, cos_BB
+def p33(self):
+    K_1 = K1(self)
+    K_2 = K2(self)
+    kc = 2*np.pi/self.lam
+    P_33 = -K_1*p31(self) - K_2*p32(self)*np.exp(1j*kc*self.L)+ 2*(np.conj(self.a1)*K_1 - self.a1*K_2)*self.L+self.C0
+    return P_33, self.sin_exp_values, self.sin_BB, self.cos_exp_values, self.cos_BB
 
 
 
@@ -129,15 +128,26 @@ Define a P-matrix data structure, and a function for concatenating of two P-matr
 
 class pmatrix:
     def __init__(self,lam, c12, a1, L, delta, C0):
-        self.p11 = p11(c12, L, delta)
-        self.p22 = p22(c12, L, delta, lam)
-        self.p12 = p12(c12, L, delta, lam)
-        self.p21 = self.p12
-        self.p31 = p31(c12,a1,L, delta)
-        self.p13 = self.p31/(-2)
-        self.p32 = p32(c12,a1,L,delta,lam)
-        self.p23 = self.p32/(-2)       
-        self.p33 = p33(c12,a1,L,delta,lam,C0)
+        self.lam = lam
+        self.c12 = c12
+        self.a1 = a1
+        self.L = L
+        self.delta = delta
+        self.C0 = C0
+        
+        self.sin_exp_values = []
+        self.sin_BB =[]
+        self.cos_exp_values = []
+        self.cos_BB =[]
+        self.p11 = p11(self)
+        self.p22 = p22(self)
+        self.p12 = p12(self)
+        self.p21 = p12
+        self.p31 = p31(self)
+        self.p13 = p31(self)/(-2)
+        self.p32 = p32(self)
+        self.p23 = p32(self)/(-2)       
+        self.p33 = p33(self)
         
     @classmethod
     def blank(cls):
@@ -175,27 +185,27 @@ def concat(pl,pr):
     return new
 
 
-def a1_finder(v, lam, ksquared, c_s, w):
-    '''
-    Takes in SAW velocity (in m/s), SAW wavelength (in m), ksquared
-    IDT capacitance per unit length (in pF/cm) and IDT overlap (in m)
-    Spits out an approximation for the piezoelectric conversion constant a1.
-    '''
+# def a1_finder(v, lam, ksquared, c_s, w):
+#     '''
+#     Takes in SAW velocity (in m/s), SAW wavelength (in m), ksquared
+#     IDT capacitance per unit length (in pF/cm) and IDT overlap (in m)
+#     Spits out an approximation for the piezoelectric conversion constant a1.
+#     '''
     
-    c_s = c_s/1E10 # Convert C_s to F/m
-    omega = 2*np.pi*v/lam
-    n_p = np.linspace(10,100,91) # create an array for n_p and minimize over array
-    if type(w) != np.ndarray:
-        w = np.array([w])
-    a1 = np.zeros(len(w))
+#     c_s = c_s/1E10 # Convert C_s to F/m
+#     omega = 2*np.pi*v/lam
+#     n_p = np.linspace(10,100,91) # create an array for n_p and minimize over array
+#     if type(w) != np.ndarray:
+#         w = np.array([w])
+#     a1 = np.zeros(len(w))
     
-    for i in range(len(w)):
-        # Define the cost function
-        G_alg = 1.3*ksquared*n_p**2*omega*w[i]*c_s
-        def f(x):
-            return np.sum((G_alg - p33(0,x,lam*n_p,1,lam).real)**2)
-        # Minimize the cost function
-        a1[i] = float(op.minimize(f, 500, method = 'Powell').x)
-    return 1j*a1
+#     for i in range(len(w)):
+#         # Define the cost function
+#         G_alg = 1.3*ksquared*n_p**2*omega*w[i]*c_s
+#         def f(x):
+#             return np.sum((G_alg - p33(0,x,lam*n_p,1,lam).real)**2)
+#         # Minimize the cost function
+#         a1[i] = float(op.minimize(f, 500, method = 'Powell').x)
+#     return 1j*a1
 
 
