@@ -7,29 +7,9 @@ Reproduced from "Surface Acoustic Wave Filters" by David Morgan, 2nd edition
 Chapter 8, page 245
 
 '''
-
-def sin_d(self,x):
-    a = np.real(x)
-    b = np.imag(x)
-    self.sin_exp_values.append(2*np.exp(-b))
-    self.sin_BB.append(b)
-    return np.divide(1, 2*np.exp(-b)+1e-30)*(np.sin(a)*(1+np.exp(-2*b)) + 1j*(np.cos(a)*(1-np.exp(-2*b))))
-    # m = np.abs(x)
-    # phi = np.angle(x)
-    # ee = m*np.exp(phi*1j)
-    # return (np.exp(ee*1j)-np.exp(-ee*1j))/(2j)
-
-def cos_d(self,x):
-    a = np.real(x)
-    b = np.imag(x)
-    self.cos_exp_values.append(2*np.exp(-b))
-    self.cos_BB.append(b)
-    return np.divide(1, 2*np.exp(-b)+1e-30)*(np.cos(a)*(1+np.exp(-2*b)) - 1j*(np.sin(a)*(1-np.exp(-2*b))))
-    # m = np.abs(x)
-    # phi = np.angle(x)
-    # ee = m*np.exp(phi*1j)
-    # return (np.exp(ee*1j)+np.exp(-ee*1j))/2
-
+'''
+Define a P-matrix data structure, and a function for concatenating of two P-matrices
+'''
 
 def thetau(c,delta,delta_v,kb,v_delta):
     #returns the detuning wavenumber given a list of frequencies, a SAW velocity, and the lithographically
@@ -62,70 +42,6 @@ def K2(self):
     # s = np.sqrt(self.delta**2 - np.abs(self.c12)**2 + 0j)
     return (self.a1*np.conj(self.c12) + 1j*self.delta*np.conj(self.a1))/((self.delta**2 - np.abs(self.c12)**2))
 
-def p11(self):
-    s = np.sqrt(self.delta**2 - np.abs(self.c12**2) + 0j)
-    # s = np.around(s,6)
-    # L = np.around(L,6)
-    a = s*self.L
-    # a = a.real%(2*np.pi)+1j*(a.imag%(2*np.pi))
-    # s =  np.real(s)*np.sign(delta) + 1j*np.imag(s)
-    # return -np.conj(c12)*sin_d(a)/(s*np.cos(a) + 1j*delta*sin_d(a))
-    return -np.conj(self.c12)*sin_d(self,a)/(s*cos_d(self,a) + 1j*self.delta*sin_d(self,a))
-
-def p22(self):
-    s = np.sqrt(self.delta**2 - np.abs(self.c12**2) + 0j)
-    kc = 2*np.pi/self.lam
-    # s = np.around(s,6)
-    # L = np.around(L,6)
-    a = s*self.L
-    # a = a.real%(2*np.pi)+1j*(a.imag%(2*np.pi))
-    # return c12*sin_d(a)*np.exp(-2j*kc*L)/(s*cos_d(a) + 1j*delta*sin_d(a))
-    return self.c12*sin_d(self,a)*np.exp(-2j*kc*self.L)/(s*cos_d(self,a) + 1j*self.delta*sin_d(self,a))
-
-def p12(self):
-    s = np.sqrt(self.delta**2 - np.abs(self.c12**2) + 0j)
-    kc = 2*np.pi/self.lam
-    # s = np.around(s,6)
-    # L = np.around(L,6)
-    a = s*self.L
-    # a = a.real%(2*np.pi)+1j*(a.imag%(2*np.pi))
-    return s*np.exp(-1j*kc*self.L)/(s*cos_d(self,a) + 1j*self.delta*sin_d(self,a))
-
-def p31(self):
-    K_2 = K2(self)
-    s = np.sqrt(self.delta**2 - np.abs(self.c12)**2 + 0j)
-    # s = np.around(s,6)
-    # L = np.around(L,6)
-    a = s*self.L
-    # a = a.real%(2*np.pi)+1j*(a.imag%(2*np.pi))
-    P_31 = (2*np.conj(self.a1)*sin_d(self,a)- 2*s*K_2*(cos_d(self,a)-1))/(s*cos_d(self,a) + 1j*self.delta*sin_d(self,a))
-    return P_31
-
-def p32(self):
-    K_1 = K1(self)
-    kc = 2*np.pi/self.lam
-    s = np.sqrt(self.delta**2 - np.abs(self.c12)**2 + 0j)
-    # s = np.around(s,6)
-    # L = np.around(L,6)
-    a = s*self.L
-    # a = a.real%(2*np.pi)+1j*(a.imag%(2*np.pi))
-    P_32 = np.exp(-1j*kc*self.L)*(-2*self.a1*sin_d(self,a)- 2*s*K_1*(cos_d(self,a)-1))/(s*cos_d(self,a) + 1j*self.delta*sin_d(self,a))
-    return P_32
-
-def p33(self):
-    K_1 = K1(self)
-    K_2 = K2(self)
-    kc = 2*np.pi/self.lam
-    P_33 = -K_1*p31(self) - K_2*p32(self)*np.exp(1j*kc*self.L)+ 2*(np.conj(self.a1)*K_1 - self.a1*K_2)*self.L+self.C0
-    return P_33, self.sin_exp_values, self.sin_BB, self.cos_exp_values, self.cos_BB
-
-
-
-'''
-Define a P-matrix data structure, and a function for concatenating of two P-matrices
-'''
-
-
 class pmatrix:
     def __init__(self,lam, c12, a1, L, delta, C0):
         self.lam = lam
@@ -134,26 +50,112 @@ class pmatrix:
         self.L = L
         self.delta = delta
         self.C0 = C0
+        # self.record = record
         
         self.sin_exp_values = []
         self.sin_BB =[]
         self.cos_exp_values = []
         self.cos_BB =[]
-        self.p11 = p11(self)
-        self.p22 = p22(self)
-        self.p12 = p12(self)
-        self.p21 = p12
-        self.p31 = p31(self)
-        self.p13 = p31(self)/(-2)
-        self.p32 = p32(self)
-        self.p23 = p32(self)/(-2)       
-        self.p33 = p33(self)
+        # self.p11 = p11(self,record)
+        # self.p22 = p22(self,record)
+        # self.p12 = p12(self,record)
+        # self.p21 = self.p12
+        # self.p31 = p31(self,record)
+        # self.p13 = self.p31/(-2)
+        # self.p32 = p32(self,record)
+        # self.p23 = self.p32/(-2)       
+        # self.p33 = p33(self,record)
         
     @classmethod
     def blank(cls):
         #Return a blank p-matrix
         n = np.array([])
         return cls(n, n, n, n, n, n)
+    
+    
+    def sin_d(self,x,record = False):
+        a = np.real(x)
+        b = np.imag(x)
+        if record:
+            self.sin_exp_values.append(2*np.exp(-b))
+            self.sin_BB.append(b)
+        return np.divide(1, 2*np.exp(-b)+1e-30)*(np.sin(a)*(1+np.exp(-2*b)) + 1j*(np.cos(a)*(1-np.exp(-2*b))))
+        # m = np.abs(x)
+        # phi = np.angle(x)
+        # ee = m*np.exp(phi*1j)
+        # return (np.exp(ee*1j)-np.exp(-ee*1j))/(2j)
+
+    def cos_d(self,x,record = False):
+        a = np.real(x)
+        b = np.imag(x)
+        if record:
+            self.cos_exp_values.append(2*np.exp(-b))
+            self.cos_BB.append(b)
+        return np.divide(1, 2*np.exp(-b)+1e-30)*(np.cos(a)*(1+np.exp(-2*b)) - 1j*(np.sin(a)*(1-np.exp(-2*b))))
+        # m = np.abs(x)
+        # phi = np.angle(x)
+        # ee = m*np.exp(phi*1j)
+        # return (np.exp(ee*1j)+np.exp(-ee*1j))/2
+
+
+    def p11(self,record):
+        s = np.sqrt(self.delta**2 - np.abs(self.c12**2) + 0j)
+        # s = np.around(s,6)
+        # L = np.around(L,6)
+        a = s*self.L
+        # a = a.real%(2*np.pi)+1j*(a.imag%(2*np.pi))
+        # s =  np.real(s)*np.sign(delta) + 1j*np.imag(s)
+        # return -np.conj(c12)*sin_d(a)/(s*np.cos(a) + 1j*delta*sin_d(a))
+        return -np.conj(self.c12)*self.sin_d(a,record)/(s*self.cos_d(a,record) + 1j*self.delta*self.sin_d(a))
+
+    def p22(self,record):
+        s = np.sqrt(self.delta**2 - np.abs(self.c12**2) + 0j)
+        kc = 2*np.pi/self.lam
+        # s = np.around(s,6)
+        # L = np.around(L,6)
+        a = s*self.L
+        # a = a.real%(2*np.pi)+1j*(a.imag%(2*np.pi))
+        # return c12*sin_d(a)*np.exp(-2j*kc*L)/(s*cos_d(a) + 1j*delta*sin_d(a))
+        return self.c12*self.sin_d(a,record)*np.exp(-2j*kc*self.L)/(s*self.cos_d(a,record) + 1j*self.delta*self.sin_d(a))
+
+    def p12(self,record):
+        s = np.sqrt(self.delta**2 - np.abs(self.c12**2) + 0j)
+        kc = 2*np.pi/self.lam
+        # s = np.around(s,6)
+        # L = np.around(L,6)
+        a = s*self.L
+        # a = a.real%(2*np.pi)+1j*(a.imag%(2*np.pi))
+        return s*np.exp(-1j*kc*self.L)/(s*self.cos_d(a,record) + 1j*self.delta*self.sin_d(a,record))
+
+    def p31(self,record):
+        K_2 = K2(self)
+        s = np.sqrt(self.delta**2 - np.abs(self.c12)**2 + 0j)
+        # s = np.around(s,6)
+        # L = np.around(L,6)
+        a = s*self.L
+        # a = a.real%(2*np.pi)+1j*(a.imag%(2*np.pi))
+        P_31 = (2*np.conj(self.a1)*self.sin_d(a,record)- 2*s*K_2*(self.cos_d(a,record)-1))/(s*self.cos_d(a) + 1j*self.delta*self.sin_d(a))
+        return P_31
+
+    def p32(self,record):
+        K_1 = K1(self)
+        kc = 2*np.pi/self.lam
+        s = np.sqrt(self.delta**2 - np.abs(self.c12)**2 + 0j)
+        # s = np.around(s,6)
+        # L = np.around(L,6)
+        a = s*self.L
+        # a = a.real%(2*np.pi)+1j*(a.imag%(2*np.pi))
+        P_32 = np.exp(-1j*kc*self.L)*(-2*self.a1*self.sin_d(a,record)- 2*s*K_1*(self.cos_d(a,record)-1))/(s*self.cos_d(a) + 1j*self.delta*self.sin_d(a))
+        return P_32
+
+    def p33(self,record):
+        K_1 = K1(self)
+        K_2 = K2(self)
+        kc = 2*np.pi/self.lam
+        P_33 = -K_1*self.p31(record) - K_2*self.p32(record)*np.exp(1j*kc*self.L)+ 2*(np.conj(self.a1)*K_1 - self.a1*K_2)*self.L+self.C0
+        return P_33, self.sin_exp_values, self.sin_BB, self.cos_exp_values, self.cos_BB
+
+
         
 
 class tmatrix:
